@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h4>Edit Skills</h4>
+      <form method="POST">
+        <div class="mb-3">
+          <label>Enter skills (comma separated)</label>
+          <textarea name="manual_skills" class="form-control" rows="4">{{ user.skills }}</textarea>
+        </div>
+        <button class="btn btn-primary">Save Skills</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

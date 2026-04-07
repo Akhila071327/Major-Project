@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.applied-card {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+.job-title {
+    color: #00eaff;
+    font-weight: 700;
+    font-size: 20px;
+}
+.meta {
+    color: rgba(255,255,255,0.85);
+}
+</style>
+
+<div class="glass-box">
+
+    <h2 class="mb-4">Your Applied Jobs</h2>
+
+    {% if jobs and jobs|length > 0 %}
+        {% for j in jobs %}
+        <div class="applied-card">
+            <div class="job-title">{{ j.title }}</div>
+
+            <div class="meta mt-2">
+                <b>Company:</b> {{ j.company }} <br>
+                <b>Location:</b> {{ j.location }} <br>
+                <b>Salary:</b> {{ j.salary }}
+            </div>
+
+            <a href="/job/{{ j.idx }}" class="btn btn-outline-light mt-3">View Job</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-light">You have not applied for any jobs yet.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

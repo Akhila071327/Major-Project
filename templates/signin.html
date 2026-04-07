@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex; justify-content:center; align-items:center; height:70vh;">
+    <div class="glass-box" style="width:420px; text-align:center;">
+
+        <h2 style="font-size:32px; margin-bottom:20px;">Sign In</h2>
+
+        <form action="/signin" method="POST">
+
+            <div style="margin-bottom:15px; text-align:left;">
+                <label style="font-weight:600;">Username</label>
+                <input type="text" name="username" required 
+                style="width:100%; padding:12px; border-radius:10px; border:none;">
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; margin-top:10px;">
+                Login
+            </button>
+
+            <p style="margin-top:18px;">
+                Don’t have an account?  
+                <a href="/signup" style="color:#00eaff;">Sign Up</a>
+            </p>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

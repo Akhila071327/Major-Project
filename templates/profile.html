@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.profile-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    max-width: 750px;
+    margin: auto;
+}
+
+.input-glass {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+}
+
+.input-glass::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+label {
+    font-weight: 600;
+    margin-top: 12px;
+}
+</style>
+
+<div class="container mt-5">
+
+    <h1 style="text-align:center; font-weight:700; margin-bottom:20px;">
+        Your Profile
+    </h1>
+
+    <div class="profile-card">
+
+        <form action="/profile" method="POST" enctype="multipart/form-data">
+
+            <!-- PROFILE PHOTO + NAME -->
+            <div style="display:flex; align-items:center; gap:20px;">
+                <div style="width:70px; height:70px; background:#00eaff; border-radius:50%;"></div>
+
+                <h2 style="margin-top:10px;">Hi, {{ user.username }}</h2>
+            </div>
+
+            <hr style="border-color:rgba(255,255,255,0.2);">
+
+            <!-- NAME -->
+            <label>First Name</label>
+            <input type="text" name="firstname"
+                class="form-control input-glass"
+                value="{{ user.firstname }}">
+
+            <label>Last Name</label>
+            <input type="text" name="lastname"
+                class="form-control input-glass"
+                value="{{ user.lastname }}">
+
+            <!-- EMAIL (read only) -->
+            <label>Email</label>
+            <input type="text" class="form-control input-glass"
+                value="{{ user.email }}" readonly>
+
+            <!-- SKILLS -->
+            <label>Your Skills (comma-separated)</label>
+            <textarea name="skills" class="form-control input-glass" rows="3"
+                placeholder="python, java, sql">{{ user.skills }}</textarea>
+
+            <!-- RESUME UPLOAD -->
+            <label>Upload New Resume (optional)</label>
+            <input type="file" name="resume" accept="application/pdf"
+                   class="form-control input-glass">
+
+            <div style="margin-top:20px;">
+                <button class="btn btn-primary">Save Changes</button>
+                <a href="/dashboard" class="btn btn-secondary">Back</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

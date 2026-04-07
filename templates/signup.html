@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex; justify-content:center; align-items:center; padding-top:30px;">
+    <div class="glass-box" style="width:600px;">
+
+        <h2 style="text-align:center; font-size:32px;">Create Your Account</h2>
+
+        <form action="/signup" method="POST" enctype="multipart/form-data">
+
+            <div style="margin-top:20px;">
+                <label><b>First Name</b></label>
+                <input type="text" name="firstname" required
+                style="width:100%; padding:12px; border-radius:10px; border:none;">
+            </div>
+
+            <div style="margin-top:15px;">
+                <label><b>Last Name</b></label>
+                <input type="text" name="lastname" required
+                style="width:100%; padding:12px; border-radius:10px; border:none;">
+            </div>
+
+            <div style="margin-top:15px;">
+                <label><b>Email</b></label>
+                <input type="email" name="email" required
+                style="width:100%; padding:12px; border-radius:10px; border:none;">
+            </div>
+
+            <div style="margin-top:15px;">
+                <label><b>Username</b></label>
+                <input type="text" name="username" required
+                style="width:100%; padding:12px; border-radius:10px; border:none;">
+            </div>
+
+            <hr style="margin:25px 0; border:0.5px solid rgba(255,255,255,0.3);">
+
+            <h3 style="font-size:22px;">Add Skills</h3>
+            <p style="opacity:0.8;">You can upload your resume or type your skills manually.</p>
+
+            <!-- Resume Upload -->
+            <label><b>Upload Resume (PDF)</b></label>
+            <input type="file" name="resume" accept="application/pdf"
+            style="width:100%; padding:12px; border-radius:10px; border:none; margin-top:8px;">
+
+            <!-- Manual Skills -->
+            <div style="margin-top:15px;">
+                <label><b>Or Type Skills Manually (comma separated)</b></label>
+                <input type="text" name="manual_skills"
+                placeholder="python, sql, java, excel..."
+                style="width:100%; padding:12px; border-radius:10px; border:none;">
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; margin-top:25px;">
+                Create Account
+            </button>
+
+            <p style="text-align:center; margin-top:18px;">
+                Already have an account?
+                <a href="/signin" style="color:#00eaff;">Sign In</a>
+            </p>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

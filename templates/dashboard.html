@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.page-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+.header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom: 18px;}
+.profile-circle { width:56px; height:56px; border-radius:50%; background: linear-gradient(135deg, #00eaff, #4cc3ff); margin-right:12px; }
+.job-card { background: rgba(255,255,255,0.06); border-radius:12px; padding:16px; margin-bottom:16px; border:1px solid rgba(255,255,255,0.06); }
+.job-title { color:#00eaff; font-weight:700; }
+.side-card { background: rgba(255,255,255,0.06); border-radius:12px; padding:16px; margin-bottom:12px; }
+.btn-apply { background: linear-gradient(90deg,#00d4ff,#00a6ff); color:#032; border:none; font-weight:700; }
+.btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.08); color:white; }
+.skill-pill { display:inline-block; background: rgba(255,255,255,0.04); padding:6px 8px; border-radius:8px; margin-right:6px; color:#fff; }
+.empty-msg { color: rgba(255,255,255,0.7); }
+@media (max-width:980px){ .page-grid{grid-template-columns:1fr;} .side-panel{position:static;} }
+</style>
+
+<div class="glass-box">
+  <div class="header-row">
+    <div style="display:flex;align-items:center;">
+      <span class="profile-circle"></span>
+      <div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.8)">Welcome back,</div>
+        <div style="font-size:24px;font-weight:800">Hi, {{ user.username }}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a class="btn btn-ghost" href="/profile">Profile</a>
+      <a class="btn btn-ghost" href="/applied_jobs">Applied Jobs</a>
+      <a class="btn btn-ghost" href="/signout">Sign Out</a>
+    </div>
+  </div>
+
+  <form method="GET" action="/dashboard" style="margin-bottom:18px;">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <input name="title" class="form-control" placeholder="Job title">
+      <input name="city" class="form-control" placeholder="Location">
+      <input name="skill" class="form-control" placeholder="Skill (e.g., python)">
+      <button class="btn btn-apply" type="submit">Apply filters</button>
+      <a href="/dashboard" class="btn btn-ghost">Reset</a>
+    </div>
+  </form>
+
+  <div class="page-grid">
+    <div>
+      <h3>Recommended Jobs for You</h3>
+
+      {% if recs and recs|length > 0 %}
+        {% for r in recs %}
+        <div class="job-card">
+          <div style="display:flex;justify-content:space-between;">
+            <div>
+              <div class="job-title">{{ r.title }}</div>
+              <div style="color:rgba(255,255,255,0.8)"><b>Company:</b> {{ r.company }} • <b>Location:</b> {{ r.location }}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:700;color:white">{{ r.salary }}</div>
+              <div style="margin-top:8px;display:flex;gap:8px;">
+                <button class="btn btn-ghost" onclick="openDetails({{ r.idx }})">View Details</button>
+                <button class="btn btn-apply" onclick="applyJob({{ r.idx }}, this)">Apply Now</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            {% if r.skills_list %}
+              {% for s in r.skills_list %}
+                <span class="skill-pill">{{ s }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-msg">No recommended jobs found. Update your skills or explore the job board.</div>
+      {% endif %}
+    </div>
+
+    <aside class="side-panel">
+      <div class="side-card">
+        <h4>Skill-gap Recommendations</h4>
+        <p style="color:rgba(255,255,255,0.8)">Skills to learn next:</p>
+        {% if resources and resources|length > 0 %}
+          <ul>
+            {% for res in resources %}
+              <li style="margin-bottom:8px;"><b style="color:#00eaff">{{ res.skill | capitalize }}</b> — <a href="{{ res.youtube }}" target="_blank">Watch tutorial</a></li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-msg">No skill gaps detected — great!</div>
+        {% endif %}
+      </div>
+      <div class="side-card">
+        <h5>Explore Jobs</h5>
+        <a class="btn btn-ghost" href="/admin">Admin / Jobs</a>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:9999;">
+  <div style="background:#0f1720;padding:18px;border-radius:10px;color:white;width:92%;max-width:760px;">
+    <div style="display:flex;justify-content:space-between;">
+      <div><h3 id="md-title"></h3><div id="md-company" style="color:rgba(255,255,255,0.75)"></div></div>
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+    </div>
+    <hr style="border-color:rgba(255,255,255,0.06)">
+    <div style="display:flex;gap:18px;flex-wrap:wrap;">
+      <div style="flex:1 1 300px;"><p><b>Location:</b> <span id="md-location"></span></p><p><b>Salary:</b> <span id="md-salary"></span></p><p><b>Skills:</b> <span id="md-skills"></span></p></div>
+      <div style="flex:1 1 300px;"><p><b>Description:</b></p><div id="md-desc"></div></div>
+    </div>
+    <div style="text-align:right;margin-top:14px;"><button id="modalApply" class="btn btn-apply">Apply</button></div>
+  </div>
+</div>
+
+<script>
+let currentJobIndex = null;
+
+function openDetails(idx){
+  currentJobIndex = idx;
+  fetch('/job/' + idx)
+    .then(r=>r.json())
+    .then(data=>{
+      document.getElementById('md-title').innerText = data.title || '';
+      document.getElementById('md-company').innerText = data.company || '';
+      document.getElementById('md-location').innerText = data.location || '';
+      document.getElementById('md-salary').innerText = data.salary || '';
+      document.getElementById('md-skills').innerText = data.skills || '';
+      document.getElementById('md-desc').innerText = data.description || '';
+      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('modalApply').onclick = function() {
+    if (currentJobIndex !== null) applyJob(currentJobIndex, this);
+};
+
+    }).catch(e=>{ alert('Failed to fetch job details'); console.error(e); });
+}
+
+function closeModal(){ document.getElementById('modal').style.display = 'none'; currentJobIndex = null; }
+
+function applyJob(idx, btn) {
+    btn.disabled = true;
+    btn.innerText = "Applying...";
+
+    fetch('/apply/' + idx, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Apply Response:", data); // <-- SEE REAL ERROR IN CONSOLE
+
+            if (data.ok) {
+                btn.innerText = "Applied";
+                showToast("Application submitted successfully.");
+            } else {
+                alert("Error: " + JSON.stringify(data));
+                btn.disabled = false;
+                btn.innerText = "Apply Now";
+            }
+        })
+        .catch(err => {
+            console.error("NETWORK ERROR:", err);
+            alert("Network error: " + err);
+            btn.disabled = false;
+            btn.innerText = "Apply Now";
+        });
+}
+
+
+</script>
+
+{% endblock %}
